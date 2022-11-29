@@ -29,7 +29,7 @@ void setSettings(){
   calloc.free(paramsPointer);
 }
 
-void setParams(){
+void assignMountedParams(){
   int stringLength = defaultStringLength;
 
   Pointer<Int32> deviceModelNamePointer = FptrBridge.getInt32Pointer(stringLength);
@@ -44,15 +44,51 @@ void openDeviceConnection(){
   libInstance.libfptr_open(fptr.value);
 }
 
+void createReceipt(){
+  //Opening Receipt (type = electronic)
+  libInstance.libfptr_set_param_int(fptr.value, libfptr_param.LIBFPTR_PARAM_RECEIPT_TYPE, libfptr_receipt_type.LIBFPTR_RT_SELL);
+  libInstance.libfptr_set_param_bool(fptr.value, libfptr_param.LIBFPTR_PARAM_RECEIPT_ELECTRONICALLY, 1);
+  libInstance.libfptr_set_param_str(fptr.value, 1008, "+79819476510".toNativeUtf16().cast<Int32>());
+  libInstance.libfptr_open_receipt(fptr.value);
+
+  //Position registration (products in receipt)
+  libInstance.libfptr_set_param_str(fptr.value, libfptr_param.LIBFPTR_PARAM_COMMODITY_NAME, "Kent Nano White".toNativeUtf16().cast<Int32>());
+  libInstance.libfptr_set_param_double(fptr.value, libfptr_param.LIBFPTR_PARAM_PRICE, 160.0);
+  libInstance.libfptr_set_param_double(fptr.value, libfptr_param.LIBFPTR_PARAM_QUANTITY, 2);
+  libInstance.libfptr_set_param_int(fptr.value, libfptr_param.LIBFPTR_PARAM_TAX_TYPE, libfptr_tax_type.LIBFPTR_TAX_VAT10);
+  libInstance.libfptr_set_param_int(fptr.value, 1212, 2);
+  libInstance.libfptr_set_param_int(fptr.value, 1214, 1);
+  libInstance.libfptr_registration(fptr.value);
+
+  //Total registration (total sum of payment)
+  libInstance.libfptr_set_param_double(fptr.value, libfptr_param.LIBFPTR_PARAM_SUM, 320.0);
+  libInstance.libfptr_receipt_total(fptr.value);
+
+  //Payment type (electronic)
+  libInstance.libfptr_set_param_int(fptr.value, libfptr_param.LIBFPTR_PARAM_PAYMENT_TYPE, libfptr_payment_type.LIBFPTR_PT_ELECTRONICALLY);
+  libInstance.libfptr_set_param_double(fptr.value, libfptr_param.LIBFPTR_PARAM_PAYMENT_SUM, 320.0);
+  libInstance.libfptr_payment(fptr.value);
+
+  libInstance.libfptr_close_receipt(fptr.value);
+
+  while(libInstance.libfptr_check_document_closed(fptr.value) < 0){
+    print(FptrBridge.getErrorDescription(fptr.value, libInstance));
+  }
+}
+
 void main() {
   init();
   setSettings();
   openDeviceConnection();
-  setParams();
+  assignMountedParams();
 
   bool isOpened = libInstance.libfptr_is_opened(fptr.value) != 0;
 
   print(isOpened);
+
+  if (isOpened){
+    createReceipt();
+  }
 
   // bool isFontDoubleWidth = libInstance.libfptr_get_param_bool(fptr.value, libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH) == 1;
   //

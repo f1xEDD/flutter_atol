@@ -19,9 +19,7 @@ class FptrBridge{
   }
 
   static String getInt32PointerValueAsStringV2(Pointer<Int32> pointer, int length){
-    var list = pointer.asTypedList(length).toList();
-
-    return String.fromCharCodes(list);
+    return String.fromCharCodes(pointer.asTypedList(length).toList());
   }
 
   static Pointer<Int32> getInt32Pointer(int length){
@@ -32,4 +30,10 @@ class FptrBridge{
     resultString = getInt32PointerValueAsStringV2(pointer, stringLength);
   }
 
+  static String getErrorDescription(Pointer<Void> fptr, LibFptr libInstance){
+    int stringSize = 4096;
+    Pointer<Int32> pointer = getInt32Pointer(stringSize);
+
+    return getInt32PointerValueAsStringV2(pointer, libInstance.libfptr_error_description(fptr, pointer, stringSize));
+  }
 }
