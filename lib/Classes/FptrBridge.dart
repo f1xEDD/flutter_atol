@@ -24,4 +24,12 @@ class FptrBridge{
     return String.fromCharCodes(list);
   }
 
+  static Pointer<Int32> getInt32Pointer(int length){
+    return calloc.allocate<Int32>(length * 4);
+  }
+
+  static void setStringValue(Pointer<Int32> pointer, String resultString, {int stringLength = 1024}){
+    resultString = getInt32PointerValueAsStringV2(pointer, stringLength);
+  }
+
 }

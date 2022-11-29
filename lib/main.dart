@@ -7,8 +7,11 @@ import 'Classes/FptrBridge.dart';
 
 LibFptr libInstance = FptrBridge.getInstance("c_libs/libfptr10.so");
 
+const int defaultStringLength = 1024;
 
 String driverSettings = "";
+String deviceModelName = "";
+
 var fptr = calloc<libfptr_handle>();
 
 void init(){
@@ -16,13 +19,25 @@ void init(){
 }
 
 void setSettings(){
-  int settingsLength = 1024;
-  Pointer<Int32> paramsPointer = calloc.allocate(settingsLength * 4);
+  int stringLength = defaultStringLength;
 
-  settingsLength = libInstance.libfptr_get_settings(fptr.value, paramsPointer, settingsLength);
-  driverSettings = FptrBridge.getInt32PointerValueAsStringV2(paramsPointer, settingsLength);
+  Pointer<Int32> paramsPointer = FptrBridge.getInt32Pointer(stringLength);
+
+  stringLength = libInstance.libfptr_get_settings(fptr.value, paramsPointer, stringLength);
+  FptrBridge.setStringValue(paramsPointer, driverSettings, stringLength: stringLength);
 
   calloc.free(paramsPointer);
+}
+
+void setParams(){
+  int stringLength = defaultStringLength;
+
+  Pointer<Int32> deviceModelNamePointer = FptrBridge.getInt32Pointer(stringLength);
+
+  stringLength = libInstance.libfptr_get_param_str(fptr.value, libfptr_param.LIBFPTR_PARAM_MODEL_NAME, deviceModelNamePointer, stringLength);
+  FptrBridge.setStringValue(deviceModelNamePointer, deviceModelName, stringLength: stringLength);
+
+  calloc.free(deviceModelNamePointer);
 }
 
 void openDeviceConnection(){
@@ -33,6 +48,7 @@ void main() {
   init();
   setSettings();
   openDeviceConnection();
+  setParams();
 
   bool isOpened = libInstance.libfptr_is_opened(fptr.value) != 0;
 
@@ -126,7 +142,10 @@ class _MyHomePageState extends State<MyHomePage> {
               'Driver version: ${FptrBridge.getInt8PointerValueAsString(libInstance.libfptr_get_version_string())}\n'
             ),
             Text(
-              'Driver settings: $driverSettings'
+              'Driver settings: $driverSettings\n'
+            ),
+            Text(
+              'Device name: $deviceModelName'
             )
           ],
         ),
