@@ -24,7 +24,7 @@ void setSettings(){
   Pointer<Int32> paramsPointer = FptrBridge.getInt32Pointer(stringLength);
 
   stringLength = libInstance.libfptr_get_settings(fptr.value, paramsPointer, stringLength);
-  FptrBridge.setStringValue(paramsPointer, driverSettings, stringLength: stringLength);
+  driverSettings = FptrBridge.getStringValue(paramsPointer, driverSettings, stringLength: stringLength);
 
   calloc.free(paramsPointer);
 }
@@ -35,7 +35,7 @@ void assignMountedParams(){
   Pointer<Int32> deviceModelNamePointer = FptrBridge.getInt32Pointer(stringLength);
 
   stringLength = libInstance.libfptr_get_param_str(fptr.value, libfptr_param.LIBFPTR_PARAM_MODEL_NAME, deviceModelNamePointer, stringLength);
-  FptrBridge.setStringValue(deviceModelNamePointer, deviceModelName, stringLength: stringLength);
+  deviceModelName = FptrBridge.getStringValue(deviceModelNamePointer, deviceModelName, stringLength: stringLength);
 
   calloc.free(deviceModelNamePointer);
 }
@@ -79,8 +79,8 @@ void createReceipt(){
 void main() {
   init();
   setSettings();
-  openDeviceConnection();
-  assignMountedParams();
+  //openDeviceConnection();
+  //assignMountedParams();
 
   bool isOpened = libInstance.libfptr_is_opened(fptr.value) != 0;
 

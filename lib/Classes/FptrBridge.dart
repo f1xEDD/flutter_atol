@@ -26,8 +26,8 @@ class FptrBridge{
     return calloc.allocate<Int32>(length * 4);
   }
 
-  static void setStringValue(Pointer<Int32> pointer, String resultString, {int stringLength = 1024}){
-    resultString = getInt32PointerValueAsStringV2(pointer, stringLength);
+  static String getStringValue(Pointer<Int32> pointer, String resultString, {int stringLength = 1024}){
+    return getInt32PointerValueAsStringV2(pointer, stringLength);
   }
 
   static String getErrorDescription(Pointer<Void> fptr, LibFptr libInstance){
