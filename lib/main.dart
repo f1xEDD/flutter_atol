@@ -9,45 +9,17 @@ LibFptr libInstance = FptrBridge.getInstance("c_libs/libfptr10.so");
 
 
 void main() {
-  Pointer<Pointer<Void>> fptrPointerPointer = calloc();
+  var fptr = calloc<libfptr_handle>();
+  libInstance.libfptr_create(fptr);
 
-  int libfptrCreateStatus = libInstance.libfptr_create(fptrPointerPointer);
+  Pointer<Int32> paramsPointer = calloc.allocate(4096 * 4);
 
-  libfptr_handle fptr = Pointer<Void>.fromAddress(fptrPointerPointer.address);
+  print(libInstance.libfptr_get_settings(fptr.value, paramsPointer, 713));
 
-  print(fptr);
-  print(fptrPointerPointer);
-  print(libfptrCreateStatus);
+  print(FptrBridge.getInt32PointerValueAsString(paramsPointer));
 
-  var b = '                                                                   ';
-
-  print(libInstance);
-
-  //Pointer<Int32> paramsPointer = calloc.allocate(b.length * 4);
-  //
-  //int c = libInstance.libfptr_get_settings(fptr, paramsPointer, b.length);
-
-  int d = libInstance.libfptr_get_param_int(fptr, libfptr_param.LIBFPTR_PARAM_ETHERNET_PORT);
-  print("35 => $d");
-
-  bool isDoubleWidth = libInstance.libfptr_get_param_bool(fptr, libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH) == 1;
-
-  print(isDoubleWidth);
-
-  libInstance.libfptr_set_param_bool(fptr, libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH, 1);
-
-  //libInstance.libfptr_apply_single_settings(fptr);
-
-  isDoubleWidth = libInstance.libfptr_get_param_bool(fptr, libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH) == 1;
-
-  print(isDoubleWidth);
-  //calloc.free(paramsPointer);
-
-  //print(d);
-
+  calloc.free(paramsPointer);
   calloc.free(fptr);
-  //calloc.free(paramsPointer);
-
   runApp(const MyApp());
 }
 
