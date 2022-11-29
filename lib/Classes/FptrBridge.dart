@@ -10,7 +10,11 @@ class FptrBridge{
     return LibFptr(DynamicLibrary.open(libraryPath));
   }
 
-  static String getIntPointerValueAsString(Pointer<Int8> pointer){
+  static String getInt8PointerValueAsString(Pointer<Int8> pointer){
+    return pointer.cast<Utf8>().toDartString();
+  }
+
+  static String getInt32PointerValueAsString(Pointer<Int32> pointer){
     return pointer.cast<Utf8>().toDartString();
   }
 

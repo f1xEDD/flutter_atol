@@ -1,8 +1,53 @@
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_atol/c_wrappers/lib_fptr.dart';
 import 'Classes/FptrBridge.dart';
 
+LibFptr libInstance = FptrBridge.getInstance("c_libs/libfptr10.so");
+
+
 void main() {
+  Pointer<Pointer<Void>> fptrPointerPointer = calloc();
+
+  int libfptrCreateStatus = libInstance.libfptr_create(fptrPointerPointer);
+
+  libfptr_handle fptr = Pointer<Void>.fromAddress(fptrPointerPointer.address);
+
+  print(fptr);
+  print(fptrPointerPointer);
+  print(libfptrCreateStatus);
+
+  var b = '                                                                   ';
+
+  print(libInstance);
+
+  //Pointer<Int32> paramsPointer = calloc.allocate(b.length * 4);
+  //
+  //int c = libInstance.libfptr_get_settings(fptr, paramsPointer, b.length);
+
+  int d = libInstance.libfptr_get_param_int(fptr, libfptr_param.LIBFPTR_PARAM_ETHERNET_PORT);
+  print("35 => $d");
+
+  bool isDoubleWidth = libInstance.libfptr_get_param_bool(fptr, libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH) == 1;
+
+  print(isDoubleWidth);
+
+  libInstance.libfptr_set_param_bool(fptr, libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH, 1);
+
+  //libInstance.libfptr_apply_single_settings(fptr);
+
+  isDoubleWidth = libInstance.libfptr_get_param_bool(fptr, libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH) == 1;
+
+  print(isDoubleWidth);
+  //calloc.free(paramsPointer);
+
+  //print(d);
+
+  calloc.free(fptr);
+  //calloc.free(paramsPointer);
+
   runApp(const MyApp());
 }
 
@@ -50,7 +95,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  LibFptr libInstance = FptrBridge.getInstance("c_libs/libfptr10.so");
 
   int _counter = 0;
 
@@ -76,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Driver version: ${FptrBridge.getIntPointerValueAsString(libInstance.libfptr_get_version_string())}',
+              'Driver version: ${FptrBridge.getInt8PointerValueAsString(libInstance.libfptr_get_version_string())}',
             ),
           ],
         ),
