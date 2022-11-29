@@ -8,17 +8,48 @@ import 'Classes/FptrBridge.dart';
 LibFptr libInstance = FptrBridge.getInstance("c_libs/libfptr10.so");
 
 
-void main() {
-  var fptr = calloc<libfptr_handle>();
+String driverSettings = "";
+var fptr = calloc<libfptr_handle>();
+
+void init(){
   libInstance.libfptr_create(fptr);
+}
 
-  Pointer<Int32> paramsPointer = calloc.allocate(4096 * 4);
+void setSettings(){
+  int settingsLength = 1024;
+  Pointer<Int32> paramsPointer = calloc.allocate(settingsLength * 4);
 
-  print(libInstance.libfptr_get_settings(fptr.value, paramsPointer, 713));
-
-  print(FptrBridge.getInt32PointerValueAsString(paramsPointer));
+  settingsLength = libInstance.libfptr_get_settings(fptr.value, paramsPointer, settingsLength);
+  driverSettings = FptrBridge.getInt32PointerValueAsStringV2(paramsPointer, settingsLength);
 
   calloc.free(paramsPointer);
+}
+
+void openDeviceConnection(){
+  libInstance.libfptr_open(fptr.value);
+}
+
+void main() {
+  init();
+  setSettings();
+  openDeviceConnection();
+
+  bool isOpened = libInstance.libfptr_is_opened(fptr.value) != 0;
+
+  print(isOpened);
+
+  // bool isFontDoubleWidth = libInstance.libfptr_get_param_bool(fptr.value, libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH) == 1;
+  //
+  // Pointer<Int32> fontParamPointer = calloc<Int32>(libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH);
+  //
+  // libInstance.libfptr_set_param_bool(fptr.value, libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH, 1);
+  // libInstance.libfptr_apply_single_settings(fptr.value);
+  //
+  // isFontDoubleWidth = libInstance.libfptr_get_param_bool(fptr.value, libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH) == 1;
+  //
+  // print(isFontDoubleWidth);
+  //
+  // calloc.free(fontParamPointer);
   calloc.free(fptr);
   runApp(const MyApp());
 }
@@ -92,8 +123,11 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Driver version: ${FptrBridge.getInt8PointerValueAsString(libInstance.libfptr_get_version_string())}',
+              'Driver version: ${FptrBridge.getInt8PointerValueAsString(libInstance.libfptr_get_version_string())}\n'
             ),
+            Text(
+              'Driver settings: $driverSettings'
+            )
           ],
         ),
       ),

@@ -18,4 +18,10 @@ class FptrBridge{
     return pointer.cast<Utf8>().toDartString();
   }
 
+  static String getInt32PointerValueAsStringV2(Pointer<Int32> pointer, int length){
+    var list = pointer.asTypedList(length).toList();
+
+    return String.fromCharCodes(list);
+  }
+
 }
