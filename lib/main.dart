@@ -45,7 +45,25 @@ void openDeviceConnection(){
 }
 
 void createReceipt(){
+  print("Setting JSON OFD task");
+
+  libInstance.libfptr_set_param_str(fptr.value, libfptr_param.LIBFPTR_PARAM_JSON_DATA, "{\"type\": \"openShift\"}".toNativeUtf16().cast<Int32>());
+  int jsonTaskResult = libInstance.libfptr_validate_json(fptr.value);
+
+  print(jsonTaskResult);
+
+  bool isJSONTaskSetCorrectly = jsonTaskResult == 0;
+
+  print("OFD task complete");
+  print(isJSONTaskSetCorrectly);
+
+
+
   libInstance.libfptr_set_param_int(fptr.value, 1055, libfptr_taxation_type.LIBFPTR_TT_USN_INCOME);
+
+  var ofdSettings = "{\"name\" : \"ООО \"Такском\"\", \"vatin\" : \"7704211201\", \"host\" : \"f1.taxcom.ru\", \"port\": 7777, \"dns\" : \"0.0.0.0\"";
+
+  print(ofdSettings);
 
   print("Creating Receipt");
 
@@ -109,18 +127,14 @@ void main() {
     createReceipt();
   }
 
-  // bool isFontDoubleWidth = libInstance.libfptr_get_param_bool(fptr.value, libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH) == 1;
-  //
-  // Pointer<Int32> fontParamPointer = calloc<Int32>(libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH);
-  //
-  // libInstance.libfptr_set_param_bool(fptr.value, libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH, 1);
-  // libInstance.libfptr_apply_single_settings(fptr.value);
-  //
-  // isFontDoubleWidth = libInstance.libfptr_get_param_bool(fptr.value, libfptr_param.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH) == 1;
-  //
-  // print(isFontDoubleWidth);
-  //
-  // calloc.free(fontParamPointer);
+  libInstance.libfptr_set_param_str(fptr.value, libfptr_param.LIBFPTR_PARAM_JSON_DATA, "{\"type\": \"openShift\"}".toNativeUtf16().cast<Int32>());
+  int jsonTaskResult = libInstance.libfptr_validate_json(fptr.value);
+  bool isJSONTaskSetCorrectly = jsonTaskResult == 0;
+
+  print(jsonTaskResult);
+  print("OFD task complete");
+  print(isJSONTaskSetCorrectly);
+
   calloc.free(fptr);
   runApp(const MyApp());
 }
