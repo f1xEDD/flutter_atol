@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_atol/c_wrappers/lib_fptr.dart';
 import 'package:ffi/ffi.dart';
 
@@ -24,6 +25,17 @@ class FptrBridge{
 
   static Pointer<Int32> getInt32Pointer(int length){
     return calloc.allocate<Int32>(length * 4);
+  }
+
+  static Pointer<Int32> getInt32PointerFromString(String string) {
+    final ptr = malloc.allocate<Int32>(sizeOf<Int32>() * string.length);
+
+    var stringCharacters = string.characters;
+
+    for (var i = 0; i < stringCharacters.length; i++) {
+      ptr.elementAt(i).value = stringCharacters.elementAt(i).codeUnitAt(0);
+    }
+    return ptr;
   }
 
   static String getStringValue(Pointer<Int32> pointer, String resultString, {int stringLength = 1024}){

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
@@ -47,9 +48,11 @@ void openDeviceConnection(){
 void createReceipt(){
   print("Setting JSON OFD task");
 
-  libInstance.libfptr_set_param_str(fptr.value, libfptr_param.LIBFPTR_PARAM_JSON_DATA, "{\"type\": \"openShift\"}".toNativeUtf16().cast<Int32>());
-  int jsonTaskResult = libInstance.libfptr_validate_json(fptr.value);
+  var ofdSettings = "\"type\" : \"registration\", \"ofd\" : { \"name\" : \"ООО \\\"Такском\\\"\", \"vatin\" : \"7704211201\", \"host\" : \"f1.taxcom.ru\", \"port\": 7777, \"dns\" : \"0.0.0.0\"}";
 
+  libInstance.libfptr_set_param_str(fptr.value, libfptr_param.LIBFPTR_PARAM_JSON_DATA, FptrBridge.getInt32PointerFromString(ofdSettings));
+  int jsonTaskResult = libInstance.libfptr_validate_json(fptr.value);
+  print(FptrBridge.getErrorDescription(fptr.value, libInstance));
   print(jsonTaskResult);
 
   bool isJSONTaskSetCorrectly = jsonTaskResult == 0;
@@ -60,10 +63,6 @@ void createReceipt(){
 
 
   libInstance.libfptr_set_param_int(fptr.value, 1055, libfptr_taxation_type.LIBFPTR_TT_USN_INCOME);
-
-  var ofdSettings = "{\"name\" : \"ООО \"Такском\"\", \"vatin\" : \"7704211201\", \"host\" : \"f1.taxcom.ru\", \"port\": 7777, \"dns\" : \"0.0.0.0\"";
-
-  print(ofdSettings);
 
   print("Creating Receipt");
 
@@ -126,14 +125,6 @@ void main() {
   if (isOpened){
     createReceipt();
   }
-
-  libInstance.libfptr_set_param_str(fptr.value, libfptr_param.LIBFPTR_PARAM_JSON_DATA, "{\"type\": \"openShift\"}".toNativeUtf16().cast<Int32>());
-  int jsonTaskResult = libInstance.libfptr_validate_json(fptr.value);
-  bool isJSONTaskSetCorrectly = jsonTaskResult == 0;
-
-  print(jsonTaskResult);
-  print("OFD task complete");
-  print(isJSONTaskSetCorrectly);
 
   calloc.free(fptr);
   runApp(const MyApp());
