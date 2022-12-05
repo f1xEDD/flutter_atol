@@ -46,9 +46,17 @@ void openDeviceConnection(){
 }
 
 void createReceipt(){
+  //libInstance.libfptr_set_param_int(fptr.value, libfptr_param.LIBFPTR_PARAM_REPORT_TYPE, libfptr_report_type.LIBFPTR_RT_CLOSE_SHIFT);
+  //libInstance.libfptr_report(fptr.value);
+
+  //print(libInstance.libfptr_check_document_closed(fptr.value));
+
   print("Setting JSON OFD task");
 
   var ofdSettings = "\"type\" : \"registration\", \"ofd\" : { \"name\" : \"ООО \\\"Такском\\\"\", \"vatin\" : \"7704211201\", \"host\" : \"f1.taxcom.ru\", \"port\": 7777, \"dns\" : \"0.0.0.0\"}";
+  //var ofdSettings = "{\"type\" : \"getRegistrationInfo\"}";
+
+  print(ofdSettings);
 
   libInstance.libfptr_set_param_str(fptr.value, libfptr_param.LIBFPTR_PARAM_JSON_DATA, FptrBridge.getInt32PointerFromString(ofdSettings));
   int jsonTaskResult = libInstance.libfptr_validate_json(fptr.value);
@@ -61,6 +69,17 @@ void createReceipt(){
   print(isJSONTaskSetCorrectly);
 
 
+  if (isJSONTaskSetCorrectly){
+    //libInstance.libfptr_process_json(fptr.value);
+    print(FptrBridge.getErrorDescription(fptr.value, libInstance));
+
+    int stringLength = defaultStringLength * 4;
+
+    var resultPointer = FptrBridge.getInt32Pointer(stringLength);
+    stringLength = libInstance.libfptr_get_param_str(fptr.value, libfptr_param.LIBFPTR_PARAM_JSON_DATA, resultPointer, stringLength);
+    print(FptrBridge.getStringValue(resultPointer, driverSettings, stringLength: stringLength));
+  }
+
 
   libInstance.libfptr_set_param_int(fptr.value, 1055, libfptr_taxation_type.LIBFPTR_TT_USN_INCOME);
 
@@ -69,14 +88,14 @@ void createReceipt(){
   //Opening Receipt (type = electronic)
   libInstance.libfptr_set_param_int(fptr.value, libfptr_param.LIBFPTR_PARAM_RECEIPT_TYPE, libfptr_receipt_type.LIBFPTR_RT_SELL);
   libInstance.libfptr_set_param_bool(fptr.value, libfptr_param.LIBFPTR_PARAM_RECEIPT_ELECTRONICALLY, 1);
-  libInstance.libfptr_set_param_str(fptr.value, 1008, "+79819476510".toNativeUtf16().cast<Int32>());
+  libInstance.libfptr_set_param_str(fptr.value, 1008, FptrBridge.getInt32PointerFromString("binnn852@gmail.com"));
   libInstance.libfptr_open_receipt(fptr.value);
 
   print("Receipt Opened");
   print(FptrBridge.getErrorDescription(fptr.value, libInstance));
 
   //Position registration (products in receipt)
-  libInstance.libfptr_set_param_str(fptr.value, libfptr_param.LIBFPTR_PARAM_COMMODITY_NAME, "Kent Nano White".toNativeUtf16().cast<Int32>());
+  libInstance.libfptr_set_param_str(fptr.value, libfptr_param.LIBFPTR_PARAM_COMMODITY_NAME, FptrBridge.getInt32PointerFromString("Kent Nano White"));
   libInstance.libfptr_set_param_double(fptr.value, libfptr_param.LIBFPTR_PARAM_PRICE, 160.0);
   libInstance.libfptr_set_param_double(fptr.value, libfptr_param.LIBFPTR_PARAM_QUANTITY, 2);
   libInstance.libfptr_set_param_int(fptr.value, libfptr_param.LIBFPTR_PARAM_TAX_TYPE, libfptr_tax_type.LIBFPTR_TAX_VAT10);
@@ -110,6 +129,17 @@ void createReceipt(){
   while(libInstance.libfptr_check_document_closed(fptr.value) < 0){
     print(FptrBridge.getErrorDescription(fptr.value, libInstance));
   }
+
+  libInstance.libfptr_set_param_int(fptr.value, libfptr_param.LIBFPTR_PARAM_FN_DATA_TYPE, libfptr_fn_data_type.LIBFPTR_FNDT_LAST_DOCUMENT);
+  libInstance.libfptr_fn_query_data(fptr.value);
+
+  int length = defaultStringLength;
+  var resultPointer = FptrBridge.getInt32Pointer(length);
+  length = libInstance.libfptr_get_param_str(fptr.value, libfptr_param.LIBFPTR_PARAM_FISCAL_SIGN, resultPointer, length);
+  String fiscalSign = "";
+  fiscalSign = FptrBridge.getStringValue(resultPointer, fiscalSign, stringLength: length);
+  print(fiscalSign);
+  print(libInstance.libfptr_get_param_int(fptr.value, libfptr_param.LIBFPTR_PARAM_DOCUMENT_NUMBER));
 }
 
 void main() {
